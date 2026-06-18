@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎀 南梁测试系统</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      text-align: center;
+      color: #764ba2;
+      margin-bottom: 10px;
+      font-size: 2em;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 30px;
+      font-size: 0.9em;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    /* 性别选择页面 */
+    .gender-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .gender-btn {
+      padding: 20px 40px;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: bold;
+    }
+
+    .gender-btn.male {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .gender-btn.male:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .gender-btn.female {
+      background: #f0f0f0;
+      color: #666;
+    }
+
+    .gender-btn.female:hover {
+      background: #ffe0e0;
+      color: #d63384;
+    }
+
+    /* 拒绝页面 */
+    .reject-box {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .reject-icon {
+      font-size: 4em;
+      margin-bottom: 20px;
+    }
+
+    .reject-text {
+      font-size: 1.3em;
+      color: #d63384;
+      margin-bottom: 20px;
+    }
+
+    .back-btn {
+      background: #764ba2;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      background: #667eea;
+      transform: scale(1.05);
+    }
+
+    /* 测试题目 */
+    .question-box {
+      margin-bottom: 25px;
+    }
+
+    .question-number {
+      color: #764ba2;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .question-text {
+      font-size: 1.1em;
+      color: #333;
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option {
+      padding: 15px 20px;
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: left;
+      font-size: 1em;
+    }
+
+    .option:hover {
+      border-color: #667eea;
+      background: #f0f4ff;
+      transform: translateX(5px);
+    }
+
+    .option.selected {
+      border-color: #764ba2;
+      background: #e8e0ff;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+
+    .nav-btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.3s;
+    }
+
+    .nav-btn.prev {
+      background: #f0f0f0;
+      color: #666;
+    }
+
+    .nav-btn.next {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .nav-btn:not(:disabled):hover {
+      transform: scale(1.05);
+    }
+
+    /* 结果页面 - 不同等级样式 */
+    .result-box {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .result-icon {
+      font-size: 5em;
+      margin-bottom: 20px;
+      animation: bounce 1s infinite;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .result-title {
+      font-size: 2em;
+      margin-bottom: 15px;
+    }
+
+    .result-level {
+      display: inline-block;
+      padding: 8px 25px;
+      border-radius: 20px;
+      font-size: 1em;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .result-desc {
+      font-size: 1.1em;
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .analogy-box {
+      background: #f8f9fa;
+      border-radius: 15px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .analogy-box h3 {
+      color: #764ba2;
+      margin-bottom: 10px;
+    }
+
+    .analogy-person {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .analogy-desc {
+      color: #666;
+      line-height: 1.6;
+      font-size: 0.95em;
+    }
+
+    .result-detail {
+      background: #f8f9fa;
+      border-radius: 15px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .result-detail h3 {
+      color: #764ba2;
+      margin-bottom: 10px;
+    }
+
+    .result-detail p {
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .score-display {
+      font-size: 3em;
+      font-weight: bold;
+      margin: 15px 0;
+    }
+
+    .restart-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 1.1em;
+      margin-top: 20px;
+      transition: all 0.3s;
+    }
+
+    .restart-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .meme-text {
+      font-style: italic;
+      color: #888;
+      margin-top: 15px;
+      font-size: 0.9em;
+    }
+
+    /* 等级颜色 */
+    .level-0 {
+      color: #28a745;
+    }
+
+    .level-0-bg {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .level-1 {
+      color: #ffc107;
+    }
+
+    .level-1-bg {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .level-2 {
+      color: #fd7e14;
+    }
+
+    .level-2-bg {
+      background: #ffe5cc;
+      color: #804000;
+    }
+
+    .level-3 {
+      color: #dc3545;
+    }
+
+    .level-3-bg {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    /* 特效 */
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      animation: sparkle 1s forwards;
+      z-index: 9999;
+    }
+
+    @keyframes sparkle {
+      0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1.5) rotate(180deg);
+        opacity: 0;
+      }
+    }
+
+    .confetti {
+      position: fixed;
+      pointer-events: none;
+      animation: confetti-fall 3s forwards;
+      z-index: 9999;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🎀 南梁测试系统 🎀</h1>
+    <p class="subtitle">科学的南梁鉴定工具</p>
+
+    <!-- 页面1：性别选择 -->
+    <div class="screen active" id="screen-gender">
+      <div style="text-align: center; margin-top: 20px;">
+        <p style="font-size: 1.2em; color: #555; margin-bottom: 10px;">请先选择您的性别：</p>
+        <p style="color: #888; font-size: 0.9em;">（本测试仅限特定人群参与）</p>
+      </div>
+      <div class="gender-buttons">
+        <button class="gender-btn male" onclick="selectGender('male')">
+          ♂ 男生
+        </button>
+        <button class="gender-btn female" onclick="selectGender('female')">
+          ♀ 女生
+        </button>
+      </div>
+    </div>
+
+    <!-- 页面2：拒绝访问 -->
+    <div class="screen" id="screen-reject">
+      <div class="reject-box">
+        <div class="reject-icon">🚫</div>
+        <div class="reject-text">
+          抱歉，本测试仅限男生参与！<br>
+          <span style="font-size: 0.8em; color: #888;">女生不需要测试，因为...</span>
+        </div>
+        <p style="color: #666; margin-bottom: 20px; line-height: 1.6;">
+          南梁（男娘）是男生的专属称号！<br>
+          女生已经是女孩子了，不需要再"南梁"了~
+        </p>
+        <button class="back-btn" onclick="goBack()">返回重新选择</button>
+      </div>
+    </div>
+
+    <!-- 页面3：测试题目 -->
+    <div class="screen" id="screen-quiz">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress"></div>
+      </div>
+      <div id="question-container"></div>
+      <div class="nav-buttons">
+        <button class="nav-btn prev" id="prevBtn" onclick="prevQuestion()" disabled>上一题</button>
+        <button class="nav-btn next" id="nextBtn" onclick="nextQuestion()" disabled>下一题</button>
+      </div>
+    </div>
+
+    <!-- 页面4：结果 -->
+    <div class="screen" id="screen-result">
+      <div class="result-box">
+        <div class="result-icon" id="result-icon">🎀</div>
+        <div class="result-title" id="result-title"></div>
+        <div class="result-level" id="result-level"></div>
+        <div class="score-display" id="score-display"></div>
+        <div class="result-desc" id="result-desc"></div>
+
+        <div class="analogy-box">
+          <h3>🎭 类比人物</h3>
+          <div class="analogy-person" id="analogy-person"></div>
+          <div class="analogy-desc" id="analogy-desc"></div>
+        </div>
+
+        <div class="result-detail">
+          <h3>📊 详细分析</h3>
+          <p id="result-analysis"></p>
+        </div>
+
+        <p class="meme-text" id="meme-text"></p>
+        <button class="restart-btn" onclick="restart()">重新测试</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 题目数据（每个选项对应不同的南梁分数 0-3）
+    const questions = [
+      {
+        id: 1,
+        question: "当你看到可爱的裙子时，你的第一反应是？",
+        options: [
+          { text: "A. 觉得很好看，想给女朋友买", score: 0 },
+          { text: "B. 觉得设计不错，欣赏一下", score: 1 },
+          { text: "C. 有点好奇自己穿会怎样", score: 2 },
+          { text: "D. 已经开始想象自己穿上的样子了", score: 3 }
+        ]
+      },
+      {
+        id: 2,
+        question: "你的日常穿搭风格更接近？",
+        options: [
+          { text: "A. 简约休闲，怎么舒服怎么来", score: 0 },
+          { text: "B. 干净整洁，注意形象", score: 1 },
+          { text: "C. 有点精致，会搭配配饰", score: 2 },
+          { text: "D. 可爱软萌，粉色系爱好者", score: 3 }
+        ]
+      },
+      {
+        id: 3,
+        question: "如果让你选择一个形容词形容自己，你会选？",
+        options: [
+          { text: "A. 硬汉 / 爷们", score: 0 },
+          { text: "B. 靠谱 / 稳重", score: 1 },
+          { text: "C. 温柔 / 细腻", score: 2 },
+          { text: "D. 可爱 / 软萌", score: 3 }
+        ]
+      },
+      {
+        id: 4,
+        question: "你对化妆品的了解程度是？",
+        options: [
+          { text: "A. 完全不懂，洗面奶就够了", score: 0 },
+          { text: "B. 知道基础护肤品", score: 1 },
+          { text: "C. 能分辨口红色号，知道遮瑕", score: 2 },
+          { text: "D. 精通各种妆容，有自己的化妆包", score: 3 }
+        ]
+      },
+      {
+        id: 5,
+        question: "当你被夸奖时，你更希望听到？",
+        options: [
+          { text: "A. \"你好man啊！\"", score: 0 },
+          { text: "B. \"你好帅啊！\"", score: 1 },
+          { text: "C. \"你好温柔！\"", score: 2 },
+          { text: "D. \"你好可爱！\"", score: 3 }
+        ]
+      },
+      {
+        id: 6,
+        question: "你的理想型更偏向？",
+        options: [
+          { text: "A. 御姐型，喜欢被照顾", score: 0 },
+          { text: "B. 知性型，聊得来就行", score: 1 },
+          { text: "C. 可爱型，想保护对方", score: 2 },
+          { text: "D. 和我一样可爱，或者比我更可爱", score: 3 }
+        ]
+      },
+      {
+        id: 7,
+        question: "如果让你选一个代表色，你会选？",
+        options: [
+          { text: "A. 黑色 / 深蓝 - 低调沉稳", score: 0 },
+          { text: "B. 灰色 / 白色 - 简约大方", score: 1 },
+          { text: "C. 浅蓝 / 薄荷绿 - 清新自然", score: 2 },
+          { text: "D. 粉色 / 紫色 - 梦幻可爱", score: 3 }
+        ]
+      },
+      {
+        id: 8,
+        question: "你的社交软件头像风格是？",
+        options: [
+          { text: "A. 风景 / 动漫 / 表情包", score: 0 },
+          { text: "B. 自拍，但比较随意", score: 1 },
+          { text: "C. 精心找的角度，有点滤镜", score: 2 },
+          { text: "D. 美颜+滤镜+贴纸，可爱风", score: 3 }
+        ]
+      },
+      {
+        id: 9,
+        question: "当你独处时，你更可能？",
+        options: [
+          { text: "A. 打游戏 / 看球赛 / 健身", score: 0 },
+          { text: "B. 看书 / 追剧 / 刷视频", score: 1 },
+          { text: "C. 护肤 / 研究穿搭 / 整理房间", score: 2 },
+          { text: "D. 试衣服 / 自拍 / 研究妆容", score: 3 }
+        ]
+      },
+      {
+        id: 10,
+        question: "最后一个问题：你觉得南梁这个词？",
+        options: [
+          { text: "A. 完全不了解，什么梗？", score: 0 },
+          { text: "B. 听说过，但不关注", score: 1 },
+          { text: "C. 挺有意思的，偶尔会看", score: 2 },
+          { text: "D. 太懂了，我就是南梁本梁", score: 3 }
+        ]
+      }
+    ];
+
+    // 结果等级配置
+    const resultLevels = {
+      0: {
+        title: "你一点也不像南梁",
+        levelText: "钢铁直男",
+        levelClass: "level-0",
+        levelBgClass: "level-0-bg",
+        icon: "💪",
+        desc: "恭喜你！你的南梁指数几乎为零。你散发着浓郁的直男气息，对可爱事物无动于衷，是南梁界的绝缘体。",
+        person: "懒",
+        personDesc: "就像\"懒\"一样，对南梁文化完全无感，活在自己的直男世界里，南梁是什么？能吃吗？",
+        analysis: "你的选择展现出强烈的直男特质：对裙子无感、穿搭随意、不了解化妆品、喜欢被夸帅而不是可爱。你就像一块坚硬的钢铁，南梁的柔光无法穿透你的防御。",
+        meme: "\"南梁？不认识，我打游戏去了。\" —— 懒"
+      },
+      1: {
+        title: "你有点南梁了",
+        levelText: "萌芽期南梁",
+        levelClass: "level-1",
+        levelBgClass: "level-1-bg",
+        icon: "🌱",
+        desc: "检测到微弱的南梁信号！虽然你表面上还是个直男，但内心深处已经有一颗南梁的种子在悄悄发芽。",
+        person: "云岫",
+        personDesc: "就像\"云岫\"一样，你开始关注一些精致的事物，偶尔也会被可爱的事物吸引，但还在直男和南梁之间徘徊。",
+        analysis: "你的选择显示出一些南梁潜质：你会欣赏好看的事物、希望被夸温柔、对穿搭有一定要求。虽然还没完全南梁化，但苗头已经显现，小心别被彻底同化哦~",
+        meme: "\"我只是觉得粉色挺好看的...真的！\" —— 云岫"
+      },
+      2: {
+        title: "你太想南梁了",
+        levelText: "进阶期南梁",
+        levelClass: "level-2",
+        levelBgClass: "level-2-bg",
+        icon: "🌸",
+        desc: "警告！你的南梁指数已经相当高！你距离真正的南梁只有一步之遥，别再挣扎了，接受命运的安排吧。",
+        person: "小百成",
+        personDesc: "就像\"小百成\"一样，你已经具备了明显的南梁特征：喜欢可爱风格、了解化妆品、享受被夸可爱，南梁之魂正在觉醒！",
+        analysis: "你的选择暴露了你：对裙子有好奇、穿搭精致、了解化妆品、喜欢粉色系、独处时会研究穿搭。这些都不是普通直男会做的事！你已经半只脚踏入南梁的大门了。",
+        meme: "\"我只是随便试试...哎呀这个滤镜好可爱！\" —— 小百成"
+      },
+      3: {
+        title: "你就是南梁",
+        levelText: "完全体南梁",
+        levelClass: "level-3",
+        levelBgClass: "level-3-bg",
+        icon: "🎀",
+        desc: "鉴定完毕！你就是如假包换的南梁！无需多言，你的每一个选择都在 screaming \"我是南梁\"。",
+        person: "百成",
+        personDesc: "就像\"百成\"一样，你是南梁界的标杆人物！精通穿搭妆容、热爱可爱风格、享受南梁身份，你就是南梁本梁！",
+        analysis: "系统分析完成：你对裙子有强烈兴趣、穿搭可爱软萌、精通化妆品、喜欢被夸可爱、理想型是可爱型、代表色是粉色、头像精心修饰、独处时试衣服自拍。这已经不能用'有点南梁'来形容了——你就是南梁！",
+        meme: "\"南梁的结局是北朝？不，我的结局是被大家喜爱~\" —— 百成"
+      }
+    };
+
+    let currentQuestion = 0;
+    let answers = [];
+    let selectedGender = '';
+
+    function selectGender(gender) {
+      selectedGender = gender;
+      if (gender === 'female') {
+        showScreen('screen-reject');
+      } else {
+        showScreen('screen-quiz');
+        loadQuestion();
+      }
+    }
+
+    function goBack() {
+      showScreen('screen-gender');
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function loadQuestion() {
+      const q = questions[currentQuestion];
+      const container = document.getElementById('question-container');
+
+      container.innerHTML = `
+                <div class="question-box">
+                    <div class="question-number">问题 ${currentQuestion + 1} / ${questions.length}</div>
+                    <div class="question-text">${q.question}</div>
+                    <div class="options">
+                        ${q.options.map((opt, idx) => `
+                            <button class="option ${answers[currentQuestion] === idx ? 'selected' : ''}" 
+                                    onclick="selectOption(${idx})">
+                                ${opt.text}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+      const progress = ((currentQuestion + 1) / questions.length) * 100;
+      document.getElementById('progress').style.width = progress + '%';
+
+      document.getElementById('prevBtn').disabled = currentQuestion === 0;
+      document.getElementById('nextBtn').disabled = answers[currentQuestion] === undefined;
+      document.getElementById('nextBtn').textContent =
+        currentQuestion === questions.length - 1 ? '查看结果' : '下一题';
+    }
+
+    function selectOption(index) {
+      answers[currentQuestion] = index;
+      loadQuestion();
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+      }
+    }
+
+    function calculateScore() {
+      let totalScore = 0;
+      let maxPossible = questions.length * 3;
+
+      for (let i = 0; i < answers.length; i++) {
+        if (answers[i] !== undefined) {
+          totalScore += questions[i].options[answers[i]].score;
+        }
+      }
+
+      // 计算百分比，确定等级
+      const percentage = totalScore / maxPossible;
+      let level;
+      if (percentage <= 0.25) {
+        level = 0;
+      } else if (percentage <= 0.5) {
+        level = 1;
+      } else if (percentage <= 0.75) {
+        level = 2;
+      } else {
+        level = 3;
+      }
+
+      return { totalScore, maxPossible, percentage, level };
+    }
+
+    function showResult() {
+      const result = calculateScore();
+      const levelData = resultLevels[result.level];
+
+      showScreen('screen-result');
+
+      // 设置图标
+      document.getElementById('result-icon').textContent = levelData.icon;
+
+      // 设置标题
+      const titleEl = document.getElementById('result-title');
+      titleEl.textContent = levelData.title;
+      titleEl.className = 'result-title ' + levelData.levelClass;
+
+      // 设置等级标签
+      const levelEl = document.getElementById('result-level');
+      levelEl.textContent = levelData.levelText;
+      levelEl.className = 'result-level ' + levelData.levelBgClass;
+
+      // 设置分数
+      const scorePercent = Math.round(result.percentage * 100);
+      document.getElementById('score-display').innerHTML =
+        `<span class="${levelData.levelClass}">${scorePercent}%</span>`;
+
+      // 设置描述
+      document.getElementById('result-desc').textContent = levelData.desc;
+
+      // 设置类比人物
+      document.getElementById('analogy-person').textContent = levelData.person;
+      document.getElementById('analogy-person').className = 'analogy-person ' + levelData.levelClass;
+      document.getElementById('analogy-desc').textContent = levelData.personDesc;
+
+      // 设置详细分析
+      document.getElementById('result-analysis').textContent = levelData.analysis;
+
+      // 设置梗
+      document.getElementById('meme-text').textContent = levelData.meme;
+
+      // 特效
+      if (result.level >= 2) {
+        createSparkles();
+      }
+      if (result.level === 3) {
+        createConfetti();
+      }
+    }
+
+    function createSparkles() {
+      const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe'];
+      for (let i = 0; i < 15; i++) {
+        setTimeout(() => {
+          const sparkle = document.createElement('div');
+          sparkle.className = 'sparkle';
+          sparkle.style.left = Math.random() * window.innerWidth + 'px';
+          sparkle.style.top = Math.random() * window.innerHeight + 'px';
+          sparkle.style.width = '15px';
+          sparkle.style.height = '15px';
+          sparkle.style.background = colors[Math.floor(Math.random() * colors.length)];
+          sparkle.style.borderRadius = '50%';
+          sparkle.style.position = 'fixed';
+          document.body.appendChild(sparkle);
+          setTimeout(() => sparkle.remove(), 1000);
+        }, i * 150);
+      }
+    }
+
+    function createConfetti() {
+      const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff'];
+      for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+          confetti.style.left = Math.random() * window.innerWidth + 'px';
+          confetti.style.top = '-10px';
+          confetti.style.width = (Math.random() * 10 + 5) + 'px';
+          confetti.style.height = (Math.random() * 10 + 5) + 'px';
+          confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.position = 'fixed';
+          confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+          document.body.appendChild(confetti);
+          setTimeout(() => confetti.remove(), 3000);
+        }, i * 50);
+      }
+    }
+
+    function restart() {
+      currentQuestion = 0;
+      answers = [];
+      selectedGender = '';
+      showScreen('screen-gender');
+    }
+
+    // 键盘支持
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('screen-quiz').classList.contains('active')) {
+        if (e.key === 'ArrowRight' || e.key === 'Enter') {
+          const nextBtn = document.getElementById('nextBtn');
+          if (!nextBtn.disabled) nextQuestion();
+        } else if (e.key === 'ArrowLeft') {
+          prevQuestion();
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
